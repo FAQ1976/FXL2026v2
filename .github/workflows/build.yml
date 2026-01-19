@@ -5,13 +5,20 @@ on: [push]
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Download Excel SDK
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "sdk"
+          # Download official Excel SDK headers and lib
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com" -OutFile "sdk/XLCALL.H"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com" -OutFile "sdk/XLCALL32.LIB"
+
       - name: Configure CMake
-        run: cmake -B build -S .
+        run: cmake -B build -S . -DSDK_PATH="${{ github.workspace }}/sdk"
 
       - name: Build XLL
         run: cmake --build build --config Release

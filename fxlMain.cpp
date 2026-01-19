@@ -1,30 +1,34 @@
 #include "framework.h"
+#include <XLCALL.H>
 
-// This is the actual function Excel will call.
-// It takes a string (LPWSTR) and returns a pointer to an XLOPER12.
+// The UDF Function
 extern "C" __declspec(dllexport) LPXLOPER12 Greeting(wchar_t* name) {
     static XLOPER12 xResult;
     static wchar_t buffer[256];
+    
+    // Excel strings require the first character to be the length (Pascal style)
+    int len = swprintf(buffer + 1, 255, L"Hello, %s! (2026 Build)", name);
+    buffer[0] = (wchar_t)len; 
 
-    // Create the greeting string
-    swprintf(buffer, 256, L"Hello, %s! (Build 2026)", name);
-
-    // Set up the return object for Excel
     xResult.xltype = xltypeStr;
     xResult.val.str = buffer;
-    
-    // Note: In a real XLL, the first character of a string 
-    // must be the length of the string (Pascal string style).
-    // For this simple example, we'll keep it basic.
-    
     return &xResult;
 }
 
-// This function is called by Excel when the XLL is loaded.
-// It is used to register the UDFs.
+// The Registration Function
 extern "C" __declspec(dllexport) int xlAutoOpen(void) {
-    // In a full implementation, we would call xlcRegister here.
-    // For this minimal "build check," we just return 1 (Success).
+    static XLOPER12 xDll;
+    
+    // 1. Get the name of this XLL file
+    Excel12(xlfGetName, &xDll, 0);
+
+    // 2. Register 'Greeting'
+    // "Q" = returns a pointer to XLOPER12, "C%" = takes a wide string
+    Excel12(xlcRegister, 0, 4, &xDll, 
+            (LPXLOPER12)L"\x08Greeting", // Function name
+            (LPXLOPER12)L"\x02QC",       // Type signature
+            (LPXLOPER12)L"\x08Greeting"  // Formula name
+    );
+
     return 1;
 }
-//Test
