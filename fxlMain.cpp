@@ -27,3 +27,4 @@ extern "C" __declspec(dllexport) int xlAutoOpen(void) {
     // For this minimal "build check," we just return 1 (Success).
     return 1;
 }
+//Test
