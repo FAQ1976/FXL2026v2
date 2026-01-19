@@ -1,2 +1,2 @@
-# FXL2026v2
+# FXL2026
 An XLL on GitHub
