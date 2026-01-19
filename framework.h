@@ -1,6 +1,7 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <wchar.h>  // Added to fix the 'swprintf' error
 
 typedef struct _xloper12 {
     union {
